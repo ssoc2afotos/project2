@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Functions Project</title>
+    <script src="./transformTemperature.js"></script>
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+  </head>
+  <body onload="onLoad()">
+    <div id="bord" class="container">
+      <h1>ΜΕΤΑΤΡΟΠΗ ΜΟΝΑΔΩΝ ΜΕΤΡΗΣΗΣ ΘΕΡΜΟΚΡΑΣΙΑΣ</h1>
+
+      <div class="theory">
+        Μπορείτε να υπολογίσετε οποιαδήποτε τιμή θερμοκρασίας <b>°C</b>,
+        <b>K</b> ή <b>°F</b> άν γνωρίζετε μία εκ των τριών θερμοκρασιών.
+        Χρησιμοποιήστε το αναδυόμενο μενού επιλογών
+        <b>"Εισαγωγή θερμοκρασίας σε:"</b> για να επιλέξετε την κλίμακα της
+        γνωστής θερμοκρασίας. Από το αναδυόμενο μενού επιλογών
+        <b>"Ακρίβεια μετατροπών:"</b> μπορείτε να ορίσετε το αριθμό των
+        δεκαδικών ψηφίων των θερμοκρασίων προς υπολογισμό. Η επιλογή
+        <i>"Αυτόματα"</i> υπολογίζει τις θερμοκρασίες με ακρίβεια ίδια με αυτή
+        της θερμοκρασίας εισαγωγής. Τα πεδία με πράσινο χρώμα είναι τα πεδία των
+        αγνωστών θερμοκρασιών και ενεργοποιούνται ανάλογα με την επιλογή της
+        γνωστης κλίμακας θερμοκρασίας. Κατά τον υπολογισμό, ανάλογα με την
+        κλίμακα εισαγωγής της θερμοκρασίας θα εμφανίζονται και οι τύποι
+        μετατροπής στις άλλες δύο κλίμακες.
+      </p>
+
+      <p id="errorDisplay" class="errorDisplay"></p>
+
+      <div class="horizontal-flex" style="gap: 1.5rem; margin-bottom: 1rem">
+        <div class="horizontal-flex" style="gap: 5px">
+          <label class="label" for="calcSelection"
+            >Εισαγωγή θερμοκρασίας σε:</label
+          >
+          <select
+            name="Calculate"
+            id="calcSelection"
+            style="width: max-content"
+            onchange="onResultChange()"
+          >
+            <option value="blank" selected disabled hidden>
+              Επίλεξε μονάδα μέτρησης θερμοκρασίας
+            </option>
+            <option value="C">Κελσίου</option>
+            <option value="K">Κέλβιν</option>
+            <option value="F">Φαρενάιτ</option>
+          </select>
+        </div>
+        <div class="horizontal-flex" style="gap: 10px">
+          <label class="label" for="accSelection">Ακρίβεια μετατροπών: </label>
+          <select
+            name="Accuracy"
+            id="accSelection"
+            style="width: max-content"
+            onchange="onAccuracyChange()"
+          >
+            <option value="-1" selected>Αυτόματα</option>
+            <option value="0">0 δεκαδικά</option>
+            <option value="1">1 δεκαδικό</option>
+            <option value="2">2 δεκαδικά</option>
+            <option value="3">3 δεκαδικά</option>
+            <option value="4">4 δεκαδικά</option>
+            <option value="5">5 δεκαδικά</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="horizontal-flex" style="gap: 15px; margin-top: 15px">
+        <div class="vertical-flex">
+          <p>Θερμοκρασία σε βαθμούς Κελσίου (°C)</p>
+          <input id="celsius" />
+        </div>
+        <div class="vertical-flex">
+          <p>Απόλυτη Θερμοκρασία σε Κέλβιν (Κ)</p>
+          <input id="kelvin" />
+        </div>
+        <div class="vertical-flex">
+          <p>Θερμοκρασία σε βαθμούς Φαρενάιτ (°F)</p>
+          <input id="fahrenheit" />
+        </div>
+      </div>
+
+      <div class="horizontal-flex" style="gap: 10px; margin-top: 15px">
+        <p class="formulaDisplay" id="toCelsiusFormula"></p>
+        <p class="formulaDisplay" id="toKelvinFormula"></p>
+        <p class="formulaDisplay" id="toFahrenheitFormula"></p>
+      </div>
+
+      <div class="horizontal-flex" style="margin-top: 10px">
+        <button id="calcButton" onclick="onCalcButtonClick()">
+          Υπολογισμός
+        </button>
+      </div>
+    </div>
+    <script>
+      let inputC = document.getElementById("celsius");
+      let inputK = document.getElementById("kelvin");
+      let inputF = document.getElementById("fahrenheit");
+
+      let calc = document.getElementById("calcSelection");
+      let accuracy = document.getElementById("accSelection");
+      let error = document.getElementById("errorDisplay");
+
+      let celsiusFormula = document.getElementById("toCelsiusFormula");
+      let kelvinFormula = document.getElementById("toKelvinFormula");
+      let fahrenheitFormula = document.getElementById("toFahrenheitFormula");
+
+      function onLoad() {
+        calc.value = "blank";
+        accuracy.value = "-1";
+        inputC.disabled = true;
+        inputK.disabled = true;
+        inputF.disabled = true;
+        inputC.value = "";
+        inputK.value = "";
+        inputF.value = "";
+
+        inputC.style.backgroundColor = "transparent";
+        inputK.style.backgroundColor = "transparent";
+        inputF.style.backgroundColor = "transparent";
+      }
+
+      function onResultChange() {
+        inputC.value = "";
+        inputK.value = "";
+        inputF.value = "";
+        celsiusFormula.innerHTML = "";
+        kelvinFormula.innerHTML = "";
+        fahrenheitFormula.innerHTML = "";
+        calculationSelector(calc.value);
+      }
+
+      function onAccuracyChange() {
+        if (calc.value) {
+          onCalcButtonClick();
+        }
+      }
+
+      function getAccuracyToUse(value) {
+        let accuracyToUse = "0";
+        if (accuracy.value === "-1") {
+          if (value.includes(".")) {
+            accuracyToUse = value.split(".")[1].length.toString();
+          } else {
+            accuracyToUse = "0";
+          }
+        } else {
+          accuracyToUse = accuracy.value;
+        }
+        return accuracyToUse;
+      }
+
+      function onCalcButtonClick() {
+        switch (calc.value) {
+          case "C":
+            if (checkValidity(inputC.value) && -inputC.value <= 273.15) {
+              let accuracyToUse = getAccuracyToUse(inputC.value);
+              inputK.value = celsiusToKelvin(inputC.value, accuracyToUse);
+              inputF.value = celsiusToFahrenheit(inputC.value, accuracyToUse);
+              kelvinFormula.innerHTML = "τύπος: K = C + 273.15";
+              fahrenheitFormula.innerHTML = "τύπος: F = (C * 9/5) + 32";
+            } else if (checkValidity(inputC.value) && -inputC.value > 273.15) {
+              inputC.value = "";
+              inputF.value = "";
+              celsiusFormula.innerHTML = "";
+              fahrenheitFormula.innerHTML = "";
+              error.innerHTML =
+                "Η κλίμακα Celsius δεν μπορεί να πάρει τιμές μικρότερες των -273.15 °C (απόλυτο μηδεν)";
+            } else {
+              inputK.value = "";
+              inputF.value = "";
+              kelvinFormula.innerHTML = "";
+              fahrenheitFormula.innerHTML = "";
+              error.innerHTML =
+                "Η τιμή της θερμοκρασίας δεν έχει σωστή μορφή (δεκτοί μόνο οι αριθμητικοί χαρακτήρες 1-9 και η υποδιαστολή '.')";
+            }
+            break;
+          case "K":
+            if (checkValidity(inputK.value) && inputK.value >= 0) {
+              let accuracyToUse = getAccuracyToUse(inputK.value);
+              inputC.value = kelvinToCelsius(inputK.value, accuracyToUse);
+              inputF.value = kelvinToFahrenheit(inputK.value, accuracyToUse);
+              celsiusFormula.innerHTML = "τύπος: C = K - 273.15";
+              fahrenheitFormula.innerHTML = "τύπος: F = (K * 9/5) - 459.67";
+            } else if (checkValidity(inputK.value) && inputK.value < 0) {
+              inputC.value = "";
+              inputF.value = "";
+              celsiusFormula.innerHTML = "";
+              fahrenheitFormula.innerHTML = "";
+              error.innerHTML =
+                "Η κλίμακα Kelvin δεν μπορεί να πάρει τιμές μικρότερες των 0 Κ (απόλυτο μηδεν)";
+            } else {
+              inputC.value = "";
+              inputF.value = "";
+              celsiusFormula.innerHTML = "";
+              fahrenheitFormula.innerHTML = "";
+              error.innerHTML =
+                "Η τιμή της θερμοκρασίας δεν έχει σωστή μορφή (δεκτοί μόνο οι αριθμητικοί χαρακτήρες 1-9 και η υποδιαστολή '.')";
+            }
+            break;
+          case "F":
+            if (checkValidity(inputF.value) && -inputF.value <= 459.7) {
+              let accuracyToUse = getAccuracyToUse(inputF.value);
+              inputC.value = fahrenheitToCelsius(inputF.value, accuracyToUse);
+              inputK.value = fahrenheitToKelvin(inputF.value, accuracyToUse);
+              celsiusFormula.innerHTML = "τύπος: C = (F - 32) * 5/9";
+              kelvinFormula.innerHTML = "τύπος: K = (F + 459.67) * 5/9";
+            } else if (checkValidity(inputF.value) && -inputF.value > 459.7) {
+              inputC.value = "";
+              inputF.value = "";
+              celsiusFormula.innerHTML = "";
+              fahrenheitFormula.innerHTML = "";
+              error.innerHTML =
+                "Η κλίμακα Fahrenheit δεν μπορεί να πάρει τιμές μικρότερες των -459.7 °F (απόλυτο μηδεν)";
+            } else {
+              inputC.value = "";
+              inputK.value = "";
+              celsiusFormula.innerHTML = "";
+              kelvinFormula.innerHTML = "";
+              error.innerHTML =
+                "Η τιμή της θερμοκρασίας δεν έχει σωστή μορφή (δεκτοί μόνο οι αριθμητικοί χαρακτήρες 1-9 και η υποδιαστολή '.')";
+            }
+            break;
+        }
+      }
+
+      function checkValidity(value) {
+        let pass = false;
+        let isnum = Number(value);
+        if (isnum) {
+          pass = true;
+          error.innerHTML = "";
+        }
+        return pass;
+      }
+
+      function calculationSelector(value) {
+        switch (value) {
+          case "C":
+            inputC.disabled = false;
+            inputK.disabled = true;
+            inputF.disabled = true;
+            inputC.style.backgroundColor = "transparent";
+            inputK.style.backgroundColor = "greenyellow";
+            inputF.style.backgroundColor = "greenyellow";
+            inputC.focus();
+            break;
+          case "K":
+            inputC.disabled = true;
+            inputK.disabled = false;
+            inputF.disabled = true;
+            inputC.style.backgroundColor = "greenyellow";
+            inputK.style.backgroundColor = "transparent";
+            inputF.style.backgroundColor = "greenyellow";
+            inputK.focus();
+            break;
+          case "F":
+            inputC.disabled = true;
+            inputK.disabled = true;
+            inputF.disabled = false;
+            inputC.style.backgroundColor = "greenyellow";
+            inputK.style.backgroundColor = "greenyellow";
+            inputF.style.backgroundColor = "transparent";
+            inputF.focus();
+            break;
+          case "blank":
+            inputC.disabled = true;
+            inputK.disabled = true;
+            inputF.disabled = true;
+            inputC.style.backgroundColor = "grey";
+            inputK.style.backgroundColor = "grey";
+            inputF.style.backgroundColor = "grey";
+            break;
+          default:
+            inputC.disabled = true;
+            inputK.disabled = true;
+            inputF.disabled = true;
+            inputC.style.backgroundColor = "grey";
+            inputK.style.backgroundColor = "grey";
+            inputF.style.backgroundColor = "grey";
+            break;
+        }
+      }
+    </script>
+  </body>
+</html>
