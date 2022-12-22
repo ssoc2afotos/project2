@@ -4,7 +4,7 @@
 
 body {
   background-color: #4afffa;
-  background-image: url(../images/background.jpg);
+  background-image: url(./background.jpg);
   background-attachment: fixed;
   background-size: cover;
   display: flex;
